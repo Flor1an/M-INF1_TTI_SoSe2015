@@ -142,18 +142,7 @@ public class Car {
 			default:
 				throw new UnsupportedOperationException("Unknown two way junction type arrow");
 			}
-		} else if (arrow.isThreeWayJunction()) {
-			switch (arrow) {
-
-			default:
-				throw new UnsupportedOperationException("Unknown three way junction type arrow");
-			}
-		} else if (arrow.isFourWayJunction()) {
-			switch (arrow) {
-
-			default:
-				throw new UnsupportedOperationException("Unknown four way junction type arrow");
-			}
+		
 		}
 
 		return successorPositions;

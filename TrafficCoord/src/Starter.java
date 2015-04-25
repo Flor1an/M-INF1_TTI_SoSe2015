@@ -7,7 +7,7 @@ import traffic.Traffic;
 import tupleSpace.TupleSpace;
 
 public class Starter {
-	// gs-agent.bat gsa.gsc 2 gsa. global.gsm 2 gsa.global.lus 2
+	// gs-agent.bat
 	// gs.bat deploy-space -cluster total_members=1,1 myTrafficGrid
 
 	public static void main(String[] args) {
@@ -17,10 +17,10 @@ public class Starter {
 			GigaSpace gigaSpace = ts.connect();
 			ts.cleanTupleSpace();
 
-			MapGenerator mapGen = new MapGenerator(gigaSpace, 45, 20);
+			MapGenerator mapGen = new MapGenerator(gigaSpace, 20, 10);
 			mapGen.generateMap();
 
-			Traffic traffic = new Traffic(gigaSpace, 10);
+			Traffic traffic = new Traffic(gigaSpace, 3);
 			new GUI(gigaSpace, traffic);
 			
 		} catch (Exception e) {
