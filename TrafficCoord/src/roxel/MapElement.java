@@ -19,9 +19,9 @@ public class MapElement {
 		// directions:
 		WEST, 
 		SOUTH, 
-		@Deprecated
+		//@Deprecated
 		EAST, 
-		@Deprecated
+		//@Deprecated
 		NORTH,
 
 		// 2 exit junctions:
@@ -104,6 +104,7 @@ public class MapElement {
 		this.type = type;
 		this.arrow = arrow;
 		spaceId = y % 2;
+
 	}
 
 	@SpaceId
@@ -175,9 +176,9 @@ public class MapElement {
 	@Override
 	public String toString() {
 		if (type != null) {
-			return String.format("MapElement(%s)[%s;%s](%s) Car=%s", id, x, y, type.toString(), currentCarId);
+			return String.format("MapElement(%s)[%s;%s](%s) Car=%s [%s]", id, x, y, type.toString(), currentCarId, arrow);
 		} else {
-			return String.format("MapElement(%s)[%s;%s](null) Car=%s", id, x, y, currentCarId);
+			return String.format("MapElement(%s)[%s;%s](null) Car=%s [%s]", id, x, y, currentCarId, arrow);
 		}
 	}
 

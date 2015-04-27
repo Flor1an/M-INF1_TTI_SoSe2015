@@ -35,8 +35,9 @@ public class Traffic {
 	 * adds the cars to the map and starts them
 	 */
 	public void moveCars() {
-		for (Car car : cars) {
-			car.moveForward();
-		}
+		//TODO: REMOVED!!
+//		for (Car car : cars) {
+//			car.moveForward();
+//		}
 	}
 }
