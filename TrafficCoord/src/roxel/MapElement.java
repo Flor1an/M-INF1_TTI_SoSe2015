@@ -1,110 +1,33 @@
 package roxel;
 
 import com.gigaspaces.annotation.pojo.SpaceId;
-import com.gigaspaces.annotation.pojo.SpaceRouting;
 
 /**
  * Roxels are the grid components of the map. They have specific
  * types/functionality and may contain a car.
  */
 public class MapElement {
-
-	public enum Type {
-		ROAD, NOROAD;
-	}
-
-	public enum Arrow {
-		NONE, // used for "non road" elements
-
-		// directions:
-		WEST, 
-		SOUTH, 
-		//@Deprecated
-		EAST, 
-		//@Deprecated
-		NORTH,
-
-		// 2 exit junctions:
-		TWO_WAY_JUNCTION_TO_WEST_OR_TO_SOUTH; 
-		
-
-	
-
-		public boolean isRoad() {
-			if (isStraight() || isTwoWayJunction() || isThreeWayJunction() || isFourWayJunction()) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		public boolean isStraight() {
-			switch (this) {
-			case WEST:
-				return true;
-			case SOUTH:
-				return true;
-			
-			default:
-				return false;
-			}
-		}
-		
-		public boolean isJunction(){
-			if(isTwoWayJunction()||isThreeWayJunction()||isFourWayJunction()){
-				return true;
-			}else{
-				return false;
-			}
-		}
-
-		public boolean isTwoWayJunction() {
-			switch (this) {
-			case TWO_WAY_JUNCTION_TO_WEST_OR_TO_SOUTH:
-				return true;
-			
-			default:
-				return false;
-			}
-		}
-
-		public boolean isThreeWayJunction() {
-			switch (this) {
-			
-			default:
-				return false;
-			}
-		}
-
-		public boolean isFourWayJunction() {
-			switch (this) {
-			
-			default:
-				return false;
-			}
-		}
-	}
-
 	private Integer id;
 	private Integer x;
 	private Integer y;
 	private Integer currentCarId;
-	private Type type;
-	private Arrow arrow;
-	private Integer spaceId;
-
+	
+	private Boolean road;
+	private Boolean junction;
+	private Boolean eastAllowed;
+	private Boolean southAllowed;
 
 	public MapElement() {
 	}
 
-	public MapElement(Integer id, Integer x, Integer y, Type type, Arrow arrow) {
+	public MapElement(Integer id, Integer x, Integer y, Boolean road,Boolean junction,Boolean eastAllowed,Boolean southAllowed) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
-		this.type = type;
-		this.arrow = arrow;
-		spaceId = y % 2;
-
+		this.road = road;
+		this.junction = junction;
+		this.eastAllowed = eastAllowed;
+		this.southAllowed = southAllowed;
 	}
 
 	@SpaceId
@@ -132,21 +55,7 @@ public class MapElement {
 		this.y = y;
 	}
 
-	public Type getType() {
-		return type;
-	}
 
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	public Arrow getArrow() {
-		return arrow;
-	}
-
-	public void setArrow(Arrow arrow) {
-		this.arrow = arrow;
-	}
 
 	public Integer getCurrentCarId() {
 		return currentCarId;
@@ -154,6 +63,38 @@ public class MapElement {
 
 	public void setCurrentCarId(Integer currentCarId) {
 		this.currentCarId = currentCarId;
+	}
+
+	public Boolean isRoad() {
+		return road;
+	}
+
+	public void setRoad(Boolean road) {
+		this.road = road;
+	}
+
+	public Boolean isJunction() {
+		return junction;
+	}
+
+	public void setJunction(Boolean junction) {
+		this.junction = junction;
+	}
+
+	public Boolean isEastAllowed() {
+		return eastAllowed;
+	}
+
+	public void setEastAllowed(Boolean eastAllowed) {
+		this.eastAllowed = eastAllowed;
+	}
+
+	public Boolean isSouthAllowed() {
+		return southAllowed;
+	}
+
+	public void setSouthAllowed(Boolean southAllowed) {
+		this.southAllowed = southAllowed;
 	}
 
 	public Boolean hasCar() {
@@ -164,22 +105,10 @@ public class MapElement {
 		currentCarId = null;
 	}
 
-	@SpaceRouting
-	Integer getSpaceId() {
-		return spaceId;
-	}
-
-	public void setSpaceId(Integer spaceId) {
-		this.spaceId = spaceId;
-	}
 
 	@Override
 	public String toString() {
-		if (type != null) {
-			return String.format("MapElement(%s)[%s;%s](%s) Car=%s [%s]", id, x, y, type.toString(), currentCarId, arrow);
-		} else {
-			return String.format("MapElement(%s)[%s;%s](null) Car=%s [%s]", id, x, y, currentCarId, arrow);
-		}
+		return String.format("MapElement(%s)[%s;%s] Car=%s \t(Road?:%s ; Junction?:%s)  [west?:%s ; south?:%s]", id, x, y, currentCarId, road, junction,eastAllowed,southAllowed);
 	}
 
 }

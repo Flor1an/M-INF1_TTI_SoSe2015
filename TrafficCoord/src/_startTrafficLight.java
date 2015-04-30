@@ -1,27 +1,26 @@
 import listener.ListenerForCarMovement;
+import listener.ListenerForTrafficLight;
 
 import org.openspaces.core.GigaSpace;
 import org.openspaces.events.polling.SimplePollingContainerConfigurer;
 import org.openspaces.events.polling.SimplePollingEventListenerContainer;
 
-public class _startWorker extends Thread {
+public class _startTrafficLight extends Thread {
 	GigaSpace gigaSpace;
-	int carId;
 
-	public _startWorker(GigaSpace gigaSpace, int carId) {
+	public _startTrafficLight(GigaSpace gigaSpace) {
 		this.gigaSpace = gigaSpace;
-		this.carId = carId;
 	}
 
 	@Override
 	public void run() {
 		super.run();
-		System.out.println("Polling started for Car: " + carId);
+		System.out.println("Polling started for Traffic Light");
 		try {
 			Thread.sleep(5000);
 
 			SimplePollingEventListenerContainer pollingEventListenerContainer = new SimplePollingContainerConfigurer(gigaSpace)
-				.eventListenerAnnotation(new ListenerForCarMovement(gigaSpace, carId))
+				.eventListenerAnnotation(new ListenerForTrafficLight(gigaSpace))
 				.pollingContainer();
 			pollingEventListenerContainer.start();
 		} catch (InterruptedException e) {

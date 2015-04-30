@@ -37,8 +37,7 @@ public class MapGenerator {
 	 * 2. generates the actual map based on information from the tuple space.
 	 * 
 	 * @throws Exception
-	 *             if an map structure is already existing in the tuple
-	 *             space.
+	 *             if an map structure is already existing in the tuple space.
 	 */
 	public void generateMap() throws Exception {
 		generateEmptyMap();
@@ -57,8 +56,8 @@ public class MapGenerator {
 		MapDimension mapDimension = gigaSpace.read(plainMapDimension);
 
 		if (mapDimension == null) {
-			Random r = new Random();
-			mapDimension = new MapDimension(1, mapSizeHorizontal, mapSizeVertical, r.nextInt(10)+1, r.nextInt(10)+1, IMAGE_SIZE);
+
+			mapDimension = new MapDimension(1, mapSizeHorizontal, mapSizeVertical, 5, 10, IMAGE_SIZE);
 			gigaSpace.write(mapDimension);
 			log.write(mapDimension.toString());
 		} else {
@@ -67,8 +66,8 @@ public class MapGenerator {
 	}
 
 	/**
-	 * generates the actual map (roads, junctions, ...) based on the layout
-	 * from the tuple space.
+	 * generates the actual map (roads, junctions, ...) based on the layout from
+	 * the tuple space.
 	 * 
 	 */
 	private void generateMapElements() {
@@ -87,19 +86,28 @@ public class MapGenerator {
 				matrix[x][y] = id;
 
 				MapElement mapElem;
-				if (y % mapDimension.getHorizontalRoadFrequency() == 0) {
-					if (x % mapDimension.getVerticalRoadFrequency() == 0) {
-						mapElem = new MapElement(id, x, y, MapElement.Type.ROAD, MapElement.Arrow.TWO_WAY_JUNCTION_TO_WEST_OR_TO_SOUTH);
+				if (y % mapDimension.getHorizontalRoadFrequency() == 1) {
+					if (x % mapDimension.getVerticalRoadFrequency() == 2) {
+						// junction
+						if (new Random().nextInt(2) == 0) {
+							// junction direction south
+							mapElem = new MapElement(id, x, y, true, true, true, false);
+						} else {
+							// junction direction east
+							mapElem = new MapElement(id, x, y, true, true, false, true);
+						}
 
 					} else {
-						mapElem = new MapElement(id, x, y, MapElement.Type.ROAD, MapElement.Arrow.WEST);
+						// straight road direction east
+						mapElem = new MapElement(id, x, y, true, false, true, false);
 					}
 				} else {
-					if (x % mapDimension.getVerticalRoadFrequency() == 0) {
-						mapElem = new MapElement(id, x, y, MapElement.Type.ROAD, MapElement.Arrow.SOUTH);
+					if (x % mapDimension.getVerticalRoadFrequency() == 2) {
+						// straight road direction south
+						mapElem = new MapElement(id, x, y, true, false, false, true);
 					} else {
-
-						mapElem = new MapElement(id, x, y, MapElement.Type.NOROAD, MapElement.Arrow.NONE);
+						// no road (green land)
+						mapElem = new MapElement(id, x, y, false, false, false, false);
 					}
 
 				}

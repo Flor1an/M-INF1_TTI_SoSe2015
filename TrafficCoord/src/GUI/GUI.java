@@ -1,11 +1,15 @@
 package GUI;
 
-import java.awt.Color;
 import java.util.ArrayList;
+
 import logger.Logger;
+
 import org.openspaces.core.GigaSpace;
+
 import roxel.MapElement;
 import roxel.MapDimension;
+import updates.NotifyGuiAboutCarMovement;
+import updates.NotifyGuiAboutTrafficLightChange;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
@@ -17,7 +21,7 @@ public class GUI extends GameGrid {
 	Logger log = new Logger();
 
 	public GUI(GigaSpace gigaSpace) {
-		super(gigaSpace.read(new MapDimension()).getWidth(), gigaSpace.read(new MapDimension()).getHeight(), gigaSpace.read(new MapDimension()).getImageSize(), Color.red);
+		super(gigaSpace.read(new MapDimension()).getWidth(), gigaSpace.read(new MapDimension()).getHeight(), gigaSpace.read(new MapDimension()).getImageSize() ,null, null, false);
 		log.read(gigaSpace.read(new MapDimension()).toString());
 		log.logLine();
 
@@ -25,7 +29,7 @@ public class GUI extends GameGrid {
 
 		drawMap();
 		show();
-
+		doRun();
 		while (true) {
 			checkForUpdates();
 		}
@@ -38,33 +42,48 @@ public class GUI extends GameGrid {
 	private void drawMap() {
 		for (MapElement mapElem : gigaSpace.readMultiple(new MapElement())) {
 			Actor tile;
-			if (mapElem.getArrow().isRoad()) {
-				tile = new RoadTile(mapElem.getArrow());
-
+			if (mapElem.isRoad() && !mapElem.isJunction()) {
+				tile = new RoadTile(mapElem);
+				addActor(tile, new Location(mapElem.getX(), mapElem.getY()));
+			} else if (mapElem.isRoad() && mapElem.isJunction()) {
+				tile = new JunctionTile(mapElem);
+				addActor(tile, new Location(mapElem.getX(), mapElem.getY()));
+				addActor(new TrafficLightTile(mapElem.isEastAllowed(), mapElem.isSouthAllowed()), new Location(mapElem.getX(), mapElem.getY()));
 			} else {
 				tile = new NoRoadTile();
+				addActor(tile, new Location(mapElem.getX(), mapElem.getY()));
 			}
-			addActor(tile, new Location(mapElem.getX(), mapElem.getY()));
+
 		}
 	}
 
-	@Override
-	/**
-	 * get called from the gui buttons (single move with the "step" function, continuous moves with the "run" button) 
-	 */
-	public void act() {
-		// traffic.moveCars();
-	}
 
 	/**
 	 * responsible for reading changes from the tuple space
 	 */
 	private void checkForUpdates() {
-		MapElementUpdate[] taken = gigaSpace.takeMultiple(new MapElementUpdate());
+
+		NotifyGuiAboutTrafficLightChange[] taken1 = gigaSpace.takeMultiple(new NotifyGuiAboutTrafficLightChange());
+		if (taken1 != null && taken1.length > 0) {
+			for (NotifyGuiAboutTrafficLightChange trafficLightUpdate : taken1) {
+				performTrafficLightUpdate(trafficLightUpdate);
+			}
+		}
+
+		NotifyGuiAboutCarMovement[] taken = gigaSpace.takeMultiple(new NotifyGuiAboutCarMovement());
 		if (taken != null && taken.length > 0) {
-			// log.log("perform " + taken.length + " GUI update");
-			for (MapElementUpdate mapElementUpdate : taken) {
-				performUpdate(mapElementUpdate);
+			for (NotifyGuiAboutCarMovement mapElementUpdate : taken) {
+				performCarMovementUpdate(mapElementUpdate);
+			}
+		}
+	}
+
+	public void performTrafficLightUpdate(NotifyGuiAboutTrafficLightChange update) {
+		ArrayList<Actor> actorsAt = getActorsAt(new Location(update.getX(), update.getY()));
+		for (Actor trafficLight : actorsAt) {
+			if (trafficLight instanceof TrafficLightTile) {
+				addActor(new TrafficLightTile(update.getToWest(), update.getToSouth()), new Location(trafficLight.getX(), trafficLight.getY()));
+				trafficLight.removeSelf();
 			}
 		}
 	}
@@ -74,7 +93,7 @@ public class GUI extends GameGrid {
 	 * 
 	 * @param update
 	 */
-	public void performUpdate(MapElementUpdate update) {
+	public void performCarMovementUpdate(NotifyGuiAboutCarMovement update) {
 		Integer oldX = update.getOldX();
 		Integer oldY = update.getOldY();
 
@@ -82,23 +101,14 @@ public class GUI extends GameGrid {
 		Integer newY = update.getNewY();
 
 		Integer carId = update.getCarId();
-		MapElement.Arrow arrow = update.getArrow();
 
-		// Allows to change the orientation of the car (in order to look like
-		// driving "forward")
+		// Allows to change the orientation of the car (in order to look like driving "forward")
 		int degreesToTurn = -1;
-		if (arrow.isStraight()) {
-			switch (arrow) {
-			case WEST:
-				degreesToTurn = 0;
-				break;
-			case SOUTH:
-				degreesToTurn = 90;
-				break;
 
-			default:
-				break;
-			}
+		if (update.getEast()) {
+			degreesToTurn = 0;
+		} else if (update.getSouth()) {
+			degreesToTurn = 90;
 		}
 
 		if (oldX == -1 || oldY == -1) {

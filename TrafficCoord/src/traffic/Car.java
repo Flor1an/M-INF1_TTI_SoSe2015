@@ -4,8 +4,8 @@ import logger.Logger;
 
 import org.openspaces.core.GigaSpace;
 
-import GUI.MapElementUpdate;
 import roxel.MapElement;
+import updates.NotifyGuiAboutCarMovement;
 
 public class Car {
 
@@ -34,7 +34,7 @@ public class Car {
 	 */
 	private void setCarToRandomPosition() {
 		MapElement roadMapElem = new MapElement();
-		roadMapElem.setType(MapElement.Type.ROAD);
+		roadMapElem.setRoad(true);
 
 		boolean foundFreeMapElement = false;
 		while (!foundFreeMapElement) {
@@ -49,7 +49,7 @@ public class Car {
 				gigaSpace.write(randomRoadMapElementFromSpace);
 				log.write(randomRoadMapElementFromSpace.toString() + "   \t\t\t (with setted carId)");
 
-				MapElementUpdate meu = new MapElementUpdate(carId, -1, -1, randomRoadMapElementFromSpace.getX(), randomRoadMapElementFromSpace.getY(), randomRoadMapElementFromSpace.getArrow());
+				NotifyGuiAboutCarMovement meu = new NotifyGuiAboutCarMovement(carId, -1, -1, randomRoadMapElementFromSpace.getX(), randomRoadMapElementFromSpace.getY(), randomRoadMapElementFromSpace.isEastAllowed(), randomRoadMapElementFromSpace.isSouthAllowed());
 				gigaSpace.write(meu);
 				log.write(meu.toString());
 			}

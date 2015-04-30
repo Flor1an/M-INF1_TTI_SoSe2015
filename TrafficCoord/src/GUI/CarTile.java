@@ -6,11 +6,16 @@ public class CarTile extends Actor {
 
 
 	public CarTile(int carId) {
-		super(true, getSprite());
+		super(true, getSprite(carId));
 	}
 
-	private static String getSprite() {
-		String path = "Sprites/car.png";
+	private static String getSprite(int carId) {
+		String path=null;
+		if (carId==0){
+			path = "Sprites/car-red.png";
+		}else{
+			path = "Sprites/car.png";
+		}
 		return path;
 	}
 }

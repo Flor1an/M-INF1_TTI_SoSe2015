@@ -5,29 +5,21 @@ import ch.aplu.jgamegrid.Actor;
 
 public class RoadTile extends Actor {
 
-	public RoadTile(MapElement.Arrow style) {
-		super(getSprite(style));
+	public RoadTile(MapElement roadElem) {
+		super(getSprite(roadElem));
 	}
 
-	private static String getSprite(MapElement.Arrow style) {
-	if(style.isRoad()){
-
-		if (style.isStraight()) {
-			switch (style) {
-			case WEST:
+	private static String getSprite(MapElement roadElem) {
+		if (roadElem.isJunction() == false) {
+			if (roadElem.isEastAllowed()) {
 				return "Sprites/road.png";
-			case SOUTH:
+			} else if (roadElem.isSouthAllowed()) {
 				return "Sprites/road90.png";
-
-			default:
+			} else {
 				return "Sprites/unk.png";
 			}
-		} else if (style.isJunction()) {
-			return "Sprites/junction.png";
 		} else {
 			return "Sprites/unk.png";
 		}
-	}else{
-		throw new UnsupportedOperationException("map element is not an road! (no generation of an road tile possible)");
-	}}
+	}
 }

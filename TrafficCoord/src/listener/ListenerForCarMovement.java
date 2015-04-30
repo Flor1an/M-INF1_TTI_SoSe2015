@@ -1,10 +1,5 @@
 package listener;
 
-
-import java.util.Random;
-
-
-
 import org.openspaces.core.GigaSpace;
 import org.openspaces.events.EventDriven;
 import org.openspaces.events.EventTemplate;
@@ -12,9 +7,9 @@ import org.openspaces.events.adapter.SpaceDataEvent;
 import org.openspaces.events.notify.NotifyType;
 import org.openspaces.events.polling.Polling;
 
-import GUI.MapElementUpdate;
 import roxel.MapDimension;
 import roxel.MapElement;
+import updates.NotifyGuiAboutCarMovement;
 
 @EventDriven
 @Polling
@@ -25,105 +20,88 @@ public class ListenerForCarMovement {
 	private int currentYPosition;
 	private GigaSpace gigaspace;
 	int carId;
+	MapDimension md;
 
+	/**
+	 * Listener for car movement
+	 */
 	public ListenerForCarMovement(GigaSpace gigaspace, int carId) {
 		this.gigaspace = gigaspace;
 		this.carId = carId;
+
+		md = gigaspace.read(new MapDimension());
+
 	}
 
 	@EventTemplate
-	MapElement unprocessedData() { 
+	MapElement unprocessedData() {
+
 		MapElement template = new MapElement();
-		template.setCurrentCarId(carId); 
+		template.setCurrentCarId(carId);
 		return template;
 	}
 
+	@SuppressWarnings("finally")
 	@SpaceDataEvent
-	public MapElement eventListener(MapElement event) throws InterruptedException {
+	public MapElement eventListener(MapElement event) {
+		try {
+			// Speed of car
+			Thread.sleep(400);
 
-		Thread.sleep(500);
+			currentXPosition = event.getX();
+			currentYPosition = event.getY();
 
-//		if (carId == 0)
-//			System.out.println("Auto bewegen " + event.toString());
+			int successorXPosition = currentXPosition;
+			int successorYPosition = currentYPosition;
 
-		MapElement updated = moveForward(event);
-
-//		if (carId == 0)
-//			System.out.println("\tupdate auf (ohne auto drauf): " + updated + "\n");
-
-		return updated;
-
-	}
-
-	/**
-	 * moves the car one element forward (or turn on junctions) bases on the
-	 * game logic
-	 * 
-	 * @throws InterruptedException
-	 */
-	public MapElement moveForward(MapElement currentMapElementFromSpace) throws InterruptedException {
-		currentXPosition = currentMapElementFromSpace.getX();
-		currentYPosition = currentMapElementFromSpace.getY();
-
-		int successorXPosition = currentXPosition;
-		int successorYPosition = currentYPosition;
-
-		MapDimension md = gigaspace.read(new MapDimension());
-
-		MapElement.Arrow arrow = currentMapElementFromSpace.getArrow();
-		if (arrow.isStraight() == false) {
-			if (new Random().nextInt(2) == 0) {
-				arrow = MapElement.Arrow.WEST;
-			} else {
-				arrow = MapElement.Arrow.SOUTH;
+			// calculate successor position
+			if (event.isEastAllowed()) {
+				int incrementedXPosition = currentXPosition + 1;
+				successorXPosition = incrementedXPosition > md.getWidth() - 1 ? 0 : incrementedXPosition;
+			} else if (event.isSouthAllowed()) {
+				int incrementedYPosition = currentYPosition + 1;
+				successorYPosition = incrementedYPosition > md.getHeight() - 1 ? 0 : incrementedYPosition;
 			}
+
+			// ///////////////// //
+			// get the successor //
+			// ///////////////// //
+			MapElement template = new MapElement();
+			template.setX(successorXPosition);
+			template.setY(successorYPosition);
+
+			// read (temporary) the successor in order to check if successor is
+			// a valid successor
+			MapElement successor = gigaspace.read(template, Integer.MAX_VALUE);
+
+			// verify if successor is a valid successor
+			if (event.isSouthAllowed() == successor.isSouthAllowed() || event.isEastAllowed() == successor.isEastAllowed()) {
+				if (!successor.hasCar()) {
+
+					// Debug
+					MapElement tmp = successor;
+					successor = gigaspace.take(successor, Integer.MAX_VALUE);
+					if (successor == null) {
+						// Debug
+						System.err.println("CANNOT TAKE: \t" + tmp);
+						return event;
+					}
+
+					// Set car to successor
+					successor.setCurrentCarId(carId);
+					gigaspace.write(successor);
+
+					// remove car from current position
+					event.removeCar();
+
+					// notify about the car movement
+					gigaspace.write(new NotifyGuiAboutCarMovement(carId, event.getX(), event.getY(), successor.getX(), successor.getY(), successor.isEastAllowed(), successor.isSouthAllowed()));
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			return event;
 		}
-
-		switch (arrow) {
-		case WEST:
-			int incrementedXPosition = currentXPosition + 1;
-			successorXPosition = incrementedXPosition > md.getWidth() - 1 ? 0 : incrementedXPosition;
-			break;
-
-		case SOUTH:
-			int incrementedYPosition = currentYPosition + 1;
-			successorYPosition = incrementedYPosition > md.getHeight() - 1 ? 0 : incrementedYPosition;
-			break;
-
-		default:
-			throw new UnsupportedOperationException("Unknown arrow direction");
-		}
-
-		//get the successor
-		MapElement template = new MapElement();
-		template.setX(successorXPosition);
-		template.setY(successorYPosition);
-		MapElement fromSpace = gigaspace.read(template, Integer.MAX_VALUE);
-
-		//check if successor is blocked with other car
-		if (fromSpace.hasCar() == false) {
-			//if not blocked do the movement
-			fromSpace = gigaspace.take(fromSpace, Integer.MAX_VALUE);
-			fromSpace.setCurrentCarId(carId);
-			gigaspace.write(fromSpace);
-
-			currentMapElementFromSpace.removeCar();
-			//TODO: Set currentMapElementFromSpace so, that the trafficlight coordinator can do stuff
-
-			MapElementUpdate meu = new MapElementUpdate(carId, currentXPosition, currentYPosition, successorXPosition, successorYPosition, fromSpace.getArrow());
-			gigaspace.write(meu);
-
-			return currentMapElementFromSpace;
-		} else {
-			// blocked with other car -> try again (see if other car is gone)
-			if (carId == 0)
-				System.out.println("congestion! Try again in 1 sec to move...");
-			Thread.sleep(1000);
-			moveForward(currentMapElementFromSpace);
-		}
-
-		return null; // not reachable due to loop
-
 	}
-
 }

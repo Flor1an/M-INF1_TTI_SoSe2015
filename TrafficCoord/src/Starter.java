@@ -9,7 +9,7 @@ public class Starter {
 	// gs-agent.bat
 	// gs.bat deploy-space -cluster total_members=1,0 myTrafficGrid
 
-	static int amoutOfCars = 20;
+	static int amoutOfCars = 10;
 
 	public static void main(String[] args) {
 		try {
@@ -18,7 +18,7 @@ public class Starter {
 			GigaSpace gigaSpace = ts.connect();
 			ts.cleanTupleSpace();
 
-			MapGenerator mapGen = new MapGenerator(gigaSpace, 20, 10);
+			MapGenerator mapGen = new MapGenerator(gigaSpace, 19, 9);
 
 			mapGen.generateMap();
 			Thread.sleep(1000);
@@ -26,8 +26,12 @@ public class Starter {
 			new Traffic(gigaSpace, amoutOfCars);
 
 			for (int i = 0; i < amoutOfCars; i++) {
-				new _startWorker(gigaSpace, i).start();
+				new _startCarMovement(gigaSpace, i).start();
 			}
+			new _startTrafficLight(gigaSpace).start();
+			new _startTrafficLightIntervallChange(gigaSpace).start();
+			
+			
 			new GUI(gigaSpace);
 		} catch (Exception e) {
 			e.printStackTrace();

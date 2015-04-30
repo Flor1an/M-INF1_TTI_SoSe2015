@@ -8,7 +8,8 @@ import org.openspaces.core.space.SpaceProxyConfigurer;
 
 import roxel.MapDimension;
 import roxel.MapElement;
-import GUI.MapElementUpdate;
+import updates.NotifyGuiAboutCarMovement;
+import updates.NotifyGuiAboutTrafficLightChange;
 
 public class TupleSpace {
 	private final String GIGASPACE_VERSION = "gigaspaces-10.1.0-XAPPremium-ga";
@@ -46,7 +47,8 @@ public class TupleSpace {
 		log.log("Cleaning Space...");
 		gigaSpace.takeMultiple(new MapElement());
 		gigaSpace.takeMultiple(new MapDimension());
-		gigaSpace.takeMultiple(new MapElementUpdate());
+		gigaSpace.takeMultiple(new NotifyGuiAboutCarMovement());
+		gigaSpace.takeMultiple(new NotifyGuiAboutTrafficLightChange());
 		log.log("Space Cleaned!");
 		log.logLine();
 	}

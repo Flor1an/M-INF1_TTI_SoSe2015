@@ -1,28 +1,35 @@
-package GUI;
-
-import roxel.MapElement;
+package updates;
 
 import com.gigaspaces.annotation.pojo.SpaceId;
 
-public class MapElementUpdate {
+public class NotifyGuiAboutCarMovement {
 
 	private Integer carId;
+	
 	private Integer oldX;
 	private Integer oldY;
+	
 	private Integer newX;
 	private Integer newY;
-	private MapElement.Arrow arrow;
+	
+	private Boolean east;
+	private Boolean south;
+	
 
-	public MapElementUpdate() {
+	public NotifyGuiAboutCarMovement() {
 	}
 
-	public MapElementUpdate(Integer carId, Integer oldX, Integer oldY, Integer newX, Integer newY, MapElement.Arrow arrow) {
+	public NotifyGuiAboutCarMovement(Integer carId, Integer oldX, Integer oldY, Integer newX, Integer newY,Boolean east,Boolean south) {
 		this.carId = carId;
+		
 		this.oldX = oldX;
 		this.oldY = oldY;
+		
 		this.newX = newX;
 		this.newY = newY;
-		this.arrow = arrow;
+		
+		this.east=east;
+		this.south=south;
 	}
 
 	@SpaceId(autoGenerate = false)
@@ -66,14 +73,21 @@ public class MapElementUpdate {
 		this.newY = newY;
 	}
 
-	public MapElement.Arrow getArrow() {
-		return arrow;
+	public Boolean getEast() {
+		return east;
 	}
 
-	public void setArrow(MapElement.Arrow arrow) {
-		this.arrow = arrow;
+	public void setEast(Boolean east) {
+		this.east = east;
 	}
 
+	public Boolean getSouth() {
+		return south;
+	}
+
+	public void setSouth(Boolean south) {
+		this.south = south;
+	}
 
 	@Override
 	public String toString() {
