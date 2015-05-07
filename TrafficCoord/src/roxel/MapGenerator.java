@@ -8,7 +8,7 @@ import org.openspaces.core.GigaSpace;
 
 public class MapGenerator {
 
-	private final int IMAGE_SIZE = 30;
+	private final int IMAGE_SIZE = 50;
 	private final GigaSpace gigaSpace;
 	private final int mapSizeVertical;
 	private final int mapSizeHorizontal;

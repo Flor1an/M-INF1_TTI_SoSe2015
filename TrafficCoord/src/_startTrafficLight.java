@@ -1,4 +1,3 @@
-import listener.ListenerForCarMovement;
 import listener.ListenerForTrafficLight;
 
 import org.openspaces.core.GigaSpace;

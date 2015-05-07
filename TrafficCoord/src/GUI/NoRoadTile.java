@@ -1,5 +1,7 @@
 package GUI;
 
+import java.util.Random;
+
 import ch.aplu.jgamegrid.Actor;
 
 public class NoRoadTile extends Actor {
@@ -9,7 +11,12 @@ public class NoRoadTile extends Actor {
 	}
 
 	private static String getSprite() {
-		String path = "Sprites/green.png";
-		return path;
+		
+		if (new Random().nextInt(5)==0){
+			return "Sprites/green1.png";
+		}else{
+			return "Sprites/green.png";
+
+		}
 	}
 }
