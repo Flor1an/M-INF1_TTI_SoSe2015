@@ -15,7 +15,7 @@ public class _startCarMovement extends Thread {
 
 	@Override
 	public void run() {
-		super.run();
+		//super.run();
 		System.out.println("Polling started for Car: " + carId);
 		try {
 			Thread.sleep(5000);
@@ -28,5 +28,4 @@ public class _startCarMovement extends Thread {
 			e.printStackTrace();
 		}
 	}
-
 }

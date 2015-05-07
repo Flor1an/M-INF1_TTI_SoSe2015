@@ -63,17 +63,17 @@ public class GUI extends GameGrid {
 	 */
 	private void checkForUpdates() {
 
-		NotifyGuiAboutTrafficLightChange[] taken1 = gigaSpace.takeMultiple(new NotifyGuiAboutTrafficLightChange());
-		if (taken1 != null && taken1.length > 0) {
-			for (NotifyGuiAboutTrafficLightChange trafficLightUpdate : taken1) {
-				performTrafficLightUpdate(trafficLightUpdate);
-			}
-		}
-
 		NotifyGuiAboutCarMovement[] taken = gigaSpace.takeMultiple(new NotifyGuiAboutCarMovement());
 		if (taken != null && taken.length > 0) {
 			for (NotifyGuiAboutCarMovement mapElementUpdate : taken) {
 				performCarMovementUpdate(mapElementUpdate);
+			}
+		}
+		
+		NotifyGuiAboutTrafficLightChange[] taken1 = gigaSpace.takeMultiple(new NotifyGuiAboutTrafficLightChange());
+		if (taken1 != null && taken1.length > 0) {
+			for (NotifyGuiAboutTrafficLightChange trafficLightUpdate : taken1) {
+				performTrafficLightUpdate(trafficLightUpdate);
 			}
 		}
 	}
@@ -118,10 +118,11 @@ public class GUI extends GameGrid {
 		} else {
 			ArrayList<Actor> actorsAt = getActorsAt(new Location(oldX, oldY));
 			for (Actor car : actorsAt) {
-				if (car instanceof CarTile) {
+				if (car instanceof CarTile && ((CarTile)car).getCarId() == carId) {
 					car.setLocation(new Location(newX, newY));
 					if (degreesToTurn != -1)
 						car.setDirection(degreesToTurn);
+					//break;
 				}
 			}
 		}

@@ -3,10 +3,11 @@ package GUI;
 import ch.aplu.jgamegrid.Actor;
 
 public class CarTile extends Actor {
-
+	private Integer carId;
 
 	public CarTile(int carId) {
 		super(true, getSprite(carId));
+		this.carId = carId;
 	}
 
 	private static String getSprite(int carId) {
@@ -17,5 +18,9 @@ public class CarTile extends Actor {
 			path = "Sprites/car.png";
 		}
 		return path;
+	}
+	
+	Integer getCarId() {
+		return this.carId;
 	}
 }
