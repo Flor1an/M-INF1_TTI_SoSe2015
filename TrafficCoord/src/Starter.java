@@ -30,7 +30,7 @@ public class Starter {
 			}
 			new _startTrafficLight(gigaSpace).start();
 			new _startTrafficLightIntervallChange(gigaSpace).start();
-			
+			new _startNotificationCarMovementCollector(gigaSpace).start();
 			
 			new GUI(gigaSpace);
 		} catch (Exception e) {

@@ -10,6 +10,7 @@ import roxel.MapElement;
 import roxel.MapDimension;
 import updates.NotifyGuiAboutCarMovement;
 import updates.NotifyGuiAboutTrafficLightChange;
+import updates.SingleNotificationAboutEntireCarMovement;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
@@ -21,7 +22,7 @@ public class GUI extends GameGrid {
 	Logger log = new Logger();
 
 	public GUI(GigaSpace gigaSpace) {
-		super(gigaSpace.read(new MapDimension()).getWidth(), gigaSpace.read(new MapDimension()).getHeight(), gigaSpace.read(new MapDimension()).getImageSize() ,null, null, false);
+		super(gigaSpace.read(new MapDimension()).getWidth(), gigaSpace.read(new MapDimension()).getHeight(), gigaSpace.read(new MapDimension()).getImageSize(), null, null, false);
 		log.read(gigaSpace.read(new MapDimension()).toString());
 		log.logLine();
 
@@ -57,19 +58,19 @@ public class GUI extends GameGrid {
 		}
 	}
 
-
 	/**
 	 * responsible for reading changes from the tuple space
 	 */
 	private void checkForUpdates() {
 
-		NotifyGuiAboutCarMovement[] taken = gigaSpace.takeMultiple(new NotifyGuiAboutCarMovement());
-		if (taken != null && taken.length > 0) {
-			for (NotifyGuiAboutCarMovement mapElementUpdate : taken) {
-				performCarMovementUpdate(mapElementUpdate);
-			}
-		}
-		
+//		SingleNotificationAboutEntireCarMovement taken = gigaSpace.take(new SingleNotificationAboutEntireCarMovement());
+//		if (taken != null) {
+//			for (NotifyGuiAboutCarMovement mapElementUpdate : taken.getLst()) {
+//				performCarMovementUpdate(mapElementUpdate);
+//			}
+//
+//		}
+
 		NotifyGuiAboutTrafficLightChange[] taken1 = gigaSpace.takeMultiple(new NotifyGuiAboutTrafficLightChange());
 		if (taken1 != null && taken1.length > 0) {
 			for (NotifyGuiAboutTrafficLightChange trafficLightUpdate : taken1) {
@@ -102,7 +103,8 @@ public class GUI extends GameGrid {
 
 		Integer carId = update.getCarId();
 
-		// Allows to change the orientation of the car (in order to look like driving "forward")
+		// Allows to change the orientation of the car (in order to look like
+		// driving "forward")
 		int degreesToTurn = -1;
 
 		if (update.getEast()) {
@@ -118,11 +120,11 @@ public class GUI extends GameGrid {
 		} else {
 			ArrayList<Actor> actorsAt = getActorsAt(new Location(oldX, oldY));
 			for (Actor car : actorsAt) {
-				if (car instanceof CarTile && ((CarTile)car).getCarId() == carId) {
+				if (car instanceof CarTile && ((CarTile) car).getCarId() == carId) {
 					car.setLocation(new Location(newX, newY));
 					if (degreesToTurn != -1)
 						car.setDirection(degreesToTurn);
-					//break;
+					// break;
 				}
 			}
 		}
