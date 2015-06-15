@@ -37,8 +37,5 @@ _5. Start trafficLight_
 	
 ###### TODO:
 - collect all cars within space (reduces amount of serialization)
-- vertical car movement
-- solve disappearing of cars
 - cluster road
-- improve ui
 - improve startup procedure

@@ -17,11 +17,14 @@ public class MapElement {
 	private Boolean junction;
 	private Boolean eastAllowed;
 	private Boolean southAllowed;
+	
+	private Integer numberOfCarsWentEast;
+	private Integer numberOfCarsWentSouth;
 
 	public MapElement() {
 	}
 
-	public MapElement(Integer id, Integer x, Integer y, Boolean road,Boolean junction,Boolean eastAllowed,Boolean southAllowed) {
+	public MapElement(Integer id, Integer x, Integer y, Boolean road,Boolean junction,Boolean eastAllowed,Boolean southAllowed,Integer numberOfCarsWentEast,Integer numberOfCarsWentSouth) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -29,7 +32,8 @@ public class MapElement {
 		this.junction = junction;
 		this.eastAllowed = eastAllowed;
 		this.southAllowed = southAllowed;
-	
+	this.numberOfCarsWentEast=numberOfCarsWentEast;
+	this.numberOfCarsWentSouth=numberOfCarsWentSouth;
 	}
 
 	@SpaceId
@@ -116,6 +120,30 @@ public class MapElement {
 
 	public void setEmpty(Boolean empty) {
 		this.empty = empty;
+	}
+
+	public Integer getNumberOfCarsWentEast() {
+		return numberOfCarsWentEast;
+	}
+
+	public void setNumberOfCarsWentEast(Integer numberOfCarsWentEast) {
+		this.numberOfCarsWentEast = numberOfCarsWentEast;
+	}
+	
+	public void increaseNumberOfCarsWentEast() {
+		this.numberOfCarsWentEast++;
+	}
+
+	public Integer getNumberOfCarsWentSouth() {
+		return numberOfCarsWentSouth;
+	}
+
+	public void setNumberOfCarsWentSouth(Integer numberOfCarsWentSouth) {
+		this.numberOfCarsWentSouth = numberOfCarsWentSouth;
+	}
+	
+	public void increaseNumberOfCarsWentSouth() {
+		this.numberOfCarsWentSouth++;
 	}
 
 	@Override

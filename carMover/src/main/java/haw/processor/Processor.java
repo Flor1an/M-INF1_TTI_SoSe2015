@@ -1,7 +1,6 @@
 package haw.processor;
 
 import haw.common.MapElement;
-import haw.feeder.*;
 import haw.feeder.Feeder.FeederTask;
 
 import org.openspaces.core.GigaSpace;
@@ -45,42 +44,78 @@ public class Processor {
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		
-		if (current.isJunction()){
-			if(current.isEastAllowed()){
-				current.setEastAllowed(false);
+
+		int currentXPosition = current.getX();
+		int currentYPosition = current.getY();
+
+		int successorXPosition = currentXPosition;
+		int successorYPosition = currentYPosition;
+
+		// calculate successor position
+		if (current.isEastAllowed()) {
+			int incrementedXPosition = currentXPosition + 1;
+			successorXPosition = incrementedXPosition > FeederTask.WIDTH - 1 ? 0 : incrementedXPosition;
+		} else if (current.isSouthAllowed()) {
+			int incrementedYPosition = currentYPosition + 1;
+			successorYPosition = incrementedYPosition > FeederTask.HEIGHT - 1 ? 0 : incrementedYPosition;
+		}
+
+		// Calculate Successor
+		MapElement successorTemplate = new MapElement();
+		successorTemplate.setX(successorXPosition);
+		successorTemplate.setY(successorYPosition);
+
+		// Get Successor
+		MapElement successor = gigaSpace.read(successorTemplate);
+
+		if (successor == null) {
+			log.warning("cannot get successor of: " + current + " \n");
+			return current;
+		}
+
+		if ((current.isSouthAllowed() == successor.isSouthAllowed()) || (current.isEastAllowed() == successor.isEastAllowed())) {
+			if (!successor.hasCar()) {
+				// Debug
+				MapElement tmp = successor;
+				successor = gigaSpace.take(successor);
+				if (successor == null) {
+					// Debug
+					log.warning("CANNOT TAKE: \t" + tmp);
+					return current;
+				}
+				if (!(successor.isEastAllowed()||successor.isSouthAllowed()))
+				{
+					//error handling: junction is gone
+					gigaSpace.write(successor);
+					return current;
+				}
+				// Set car to successor
+				successor.setCurrentCarId(current.getCurrentCarId());
+				gigaSpace.write(successor);
+
+				// remove car from current position
+				current.removeCar();
+				
+				//counting how many cars passed the element
+				if(current.isEastAllowed()){
+					current.increaseNumberOfCarsWentEast();
+				}
+				if(current.isSouthAllowed()){
+					current.increaseNumberOfCarsWentSouth();
+				}
+
+				if (current.isJunction()) {
+					// removes the directions, so that the traffic light can act
+					// (it looks for an junction without direction)
+					current.setSouthAllowed(false);
+					current.setEastAllowed(false);
+				}
+				log.info("Car " + successor.getCurrentCarId() + " sucessfull moved from: [" + current.getX()+";"+current.getY() + "] -> [" + successor.getX()+";"+ successor.getY()+ "]\n");
+				return current;
 			}
 		}
 
-		//Calculate Successor
-		Integer successorX = 0;
-		if (current.getX() < FeederTask.HEIGHT) {
-			successorX = current.getX() + 1;
-		}
-		MapElement successorTemplate = new MapElement();
-		successorTemplate.setX(successorX);
-		successorTemplate.setEastAllowed(true);
-		
-		//Get Successor
-		MapElement successor = gigaSpace.read(successorTemplate);
-		
-		if (successor==null){
-			//probably TrafficLight needs to act before
-			log.warning("Traffic Light shows red : " + current + "\n");
-			return current;
-		}
-		
-		//Add carId to successor
-		successor.setCurrentCarId(current.getCurrentCarId());
-		
-		//Write successor to space (with the setted carId)
-		gigaSpace.write(successor);
-		
-		//Remove carId from current element
-		current.removeCar();
-		
-		log.info(" >> OLD : " + current);
-		log.info(" >> NEW : " + successor + "\n");
+		log.warning("Car: " + current.getCurrentCarId() + " NOT moved. Restored information and put back in space.\n\tCar sits on: "+current+"\n");
 		return current;
 	}
 

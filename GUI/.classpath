@@ -3,7 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/GigaSpace"/>
-	<classpathentry kind="lib" path="C:/Users/Florian/OneDrive/Programmierung/GitHub/TTI_SoSe2015/Maven/TrafficCoordinatorPartitioned/GUI/lib/JGameGrid.jar"/>
 	<classpathentry kind="src" path="/common"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JGame"/>
+	<classpathentry kind="src" path="/feeder"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -24,7 +24,7 @@ public class CarTile extends Actor {
 		return path;
 	}
 	
-	Integer getCarId() {
+	public Integer getCarId() {
 		return this.carId;
 	}
 }

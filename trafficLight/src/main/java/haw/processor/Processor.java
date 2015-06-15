@@ -44,9 +44,17 @@ public class Processor {
 			// do nothing
 		}
 
-		current.setEastAllowed(true);
+		//3 east than 1 south
+		if (current.getNumberOfCarsWentEast()>=1){
+			current.setSouthAllowed(true);
+			current.setNumberOfCarsWentEast(0);
+			log.info("Switched Traffic Light on: ["+current.getX()+";"+current.getY() +"] dirction SOUTH (vertical road gets green)");
+		}else{
+			current.setEastAllowed(true);
+			log.info("Switched Traffic Light on: ["+current.getX()+";"+current.getY() +"] direction EAST (horizontal road gets green) ");
 
-		log.info(" TRAFFIC LIGHT >> NEW : " + current.toString() + "\n");
+		}
+
 		return current;
 	}
 

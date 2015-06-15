@@ -1,5 +1,13 @@
-import java.sql.Timestamp;
+import haw.common.MapElement;
+import haw.feeder.Feeder.FeederTask;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
+
+import org.openspaces.core.GigaSpace;
+import org.openspaces.core.GigaSpaceConfigurer;
+import org.openspaces.core.space.SpaceProxyConfigurer;
 
 import Tiles.CarTile;
 import Tiles.JunctionTile;
@@ -10,33 +18,27 @@ import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
 
-import org.openspaces.core.GigaSpace;
-import org.openspaces.core.GigaSpaceConfigurer;
-import org.openspaces.core.space.SpaceProxyConfigurer;
-
-import haw.common.CarPositions;
-import haw.common.MapElement;
-
 public class GUI extends GameGrid {
 	Logger log = Logger.getLogger(this.getClass().getName());
 
 	private static final long serialVersionUID = -6268178828310212085L;
 	private GigaSpace gigaSpace;
-	CarTile car = null;
+	HashMap<Integer, CarTile> cars = null;
 
 	public static void main(String[] args) throws InterruptedException {
-		GUI g = new GUI();
+		new GUI();
 	}
 
 	public GUI() throws InterruptedException {
-		super(15, 10, 50, null, null, false);
+		super(FeederTask.WIDTH , FeederTask.HEIGHT, 50, null, null, false);
 		connect();
+		cars = new HashMap<Integer, CarTile>();
 
 		drawMap();
 		show();
 		doRun();
 		while (true) {
-			Thread.sleep(20);
+			Thread.sleep(400);
 			drawCars();
 			drawTrafficLights();
 		}
@@ -77,66 +79,67 @@ public class GUI extends GameGrid {
 
 	private void drawCars() {
 
-		log.info("Drawing cars...");
-
-		removeActors(new CarTile().getClass());
-
-		MapElement carME = new MapElement();
-		carME.setRoad(true);
-		carME.setEmpty(false);
-
-		for (MapElement mapElem : gigaSpace.readMultiple(carME)) {
-			CarTile ct = new CarTile(mapElem.getCurrentCarId());
-			addActor(ct, new Location(mapElem.getX(), mapElem.getY()));
-			System.out.println("CAR: " + mapElem.toString());
-
-		}
-		log.info("Drawing Cars completed!");
-
-	}
-	
-	private void drawTrafficLights() {
-
-		log.info("Drawing trafficLight...");
-
-		removeActors(new TrafficLightTile().getClass());
-
-		MapElement carME = new MapElement();
-		carME.setRoad(true);
-		carME.setJunction(true);
-
-		for (MapElement mapElem : gigaSpace.readMultiple(carME)) {
-			TrafficLightTile tlt = new TrafficLightTile(mapElem.isEastAllowed(),mapElem.isSouthAllowed());
-			addActor(tlt, new Location(mapElem.getX(), mapElem.getY()));
-			System.out.println("TrafficLight: " + mapElem.toString());
-
-		}
-		log.info("Drawing TrafficLight completed!");
-
-	}
-
-	/**
-	 * responsible for reading changes from the tuple space
-	 */
-	private void checkForUpdates() {
-		System.out.println(new Timestamp(new java.util.Date().getTime()) + " fired");
 		try {
-			Thread.sleep(1000);
-			MapElement template = new MapElement();
-			template.hasCar();
-			template.setCurrentCarId(0); // TODO: check warum hasCar nicht geht
 
-			MapElement newInfo = gigaSpace.read(template);
+			// gets all cars that are currently drawn (in order to move them)
+			for (Actor actor : getActors(new CarTile().getClass())) {
+				cars.put(((CarTile) actor).getCarId(), (CarTile) actor);
+			}
 
-			if (newInfo != null) {
-				removeActor(car);
-				addActor(car, new Location(newInfo.getX(), newInfo.getY()), 0);
-				System.out.println(new Location(newInfo.getX(), newInfo.getY()));
+			MapElement carME = new MapElement();
+			carME.setRoad(true);
+			carME.setEmpty(false);
+
+			for (MapElement mapElem : gigaSpace.readMultiple(carME)) {
+
+				// Initial setup (or if cars get added)
+				if (!cars.containsKey(mapElem.getCurrentCarId())) {
+					CarTile ct = new CarTile(mapElem.getCurrentCarId());
+					cars.put(mapElem.getCurrentCarId(), ct);
+					addActor(ct, new Location(mapElem.getX(), mapElem.getY()));
+				}
+
+				CarTile foundCar = cars.get(mapElem.getCurrentCarId());
+				foundCar.setLocation(new Location(mapElem.getX(), mapElem.getY()));
+
+				// Orientation if heading east or south
+				if (mapElem.isEastAllowed() && !mapElem.isSouthAllowed()) {
+					foundCar.setDirection(0);
+				} else if (!mapElem.isEastAllowed() && mapElem.isSouthAllowed()) {
+					foundCar.setDirection(90);
+				}
+			}
+
+		} catch (Exception e) {
+			log.warning("DRWAING CARS: " + e.getMessage());
+		}
+
+	}
+
+	private void drawTrafficLights() {
+		try {
+
+			
+			
+			
+
+			MapElement carME = new MapElement();
+			carME.setRoad(true);
+			carME.setJunction(true);
+
+			for (MapElement mapElem : gigaSpace.readMultiple(carME)) {
+				ArrayList<Actor> tl = getActorsAt(new Location(mapElem.getX(), mapElem.getY()), new TrafficLightTile().getClass());
+
+				addActor(new TrafficLightTile(mapElem.isEastAllowed(),  mapElem.isSouthAllowed()), new Location(mapElem.getX(), mapElem.getY()));
+				tl.removeAll(tl);
+				
+				
+				
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			removeAllActors();
-			drawMap();
+			log.warning("TRAFFIC LIGHTS: " + e.getMessage());
 		}
+
 	}
+
 }

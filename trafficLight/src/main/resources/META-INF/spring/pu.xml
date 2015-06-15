@@ -47,8 +47,9 @@
 		<os-events:tx-support tx-manager="transactionManager" />
 		<os-core:template>
 			<bean class="haw.common.MapElement">
-				 <property name="junction" value="true" /> 
- 				 <property name="eastAllowed" value="false" /> 
+				<property name="junction" value="true" />
+				<property name="eastAllowed" value="false" />
+				<property name="southAllowed" value="false" />
 			</bean>
 		</os-core:template>
 		<os-events:listener>
