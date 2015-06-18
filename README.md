@@ -11,7 +11,11 @@ _1.1 to start tuple space:_
 
     gs.bat deploy-space -cluster total_members=4,0 space
 
+
+
 ***
+
+
 	
 _2.1. to compile code:_	
 
@@ -36,7 +40,12 @@ _2.5. Start trafficLight_
 _2.6. Start collectCars (optional) [not yet working]_
 
     mvn os:run -Dmodule=collectCars
-	
+
+
+
+***
+
+
 	
 ###### TODO:
 - collect all cars within space (reduces amount of serialization)
