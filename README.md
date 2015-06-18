@@ -3,36 +3,37 @@
 Technik und Technologie verteilter Informationssysteme (Teil 4)
 
 --
-_to start tuple space:_
+_1.1 to start tuple space:_
 
     gs-agent.bat
-	
-_to start partitioned space:_
+
+ _1.2 to start partitioned space:_
 
     gs.bat deploy-space -cluster total_members=4,0 space
 
+***
 	
-_1. to compile code:_	
+_2.1. to compile code:_	
 
     mvn compile 	
 
-_2. Start feeder (generates the world and cars):_
+_2.2. Start feeder (generates the world and cars):_
 
     mvn os:run -Dmodule=feeder
 
-_3. Start Gui (e.g. from eclipse)_
+_2.3. Start Gui (e.g. from eclipse)_
 
 [before carMove, due to some road elements may be missing while they are processes (taken from the space)]
 
-_4. Start carMover_
+_2.4. Start carMover_
 
     mvn os:run -Dmodule=carMover
 
-_5. Start trafficLight_
+_2.5. Start trafficLight_
 
     mvn os:run -Dmodule=trafficLight
 	
-_6. (optional) Start collectCars [not jet working]_
+_2.6. Start collectCars (optional) [not yet working]_
 
     mvn os:run -Dmodule=collectCars
 	
@@ -41,3 +42,4 @@ _6. (optional) Start collectCars [not jet working]_
 - collect all cars within space (reduces amount of serialization)
 - cluster road
 - improve startup procedure
+
