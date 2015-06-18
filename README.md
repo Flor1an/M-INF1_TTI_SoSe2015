@@ -5,11 +5,11 @@ Technik und Technologie verteilter Informationssysteme (Teil 4)
 --
 _to start tuple space:_
 
-    gs-agent.bat / gs-agent.sh
+    gs-agent.bat
 	
 _to start partitioned space:_
 
-    gs.bat / gs.sh deploy-space -cluster total_members=4,0 space
+    gs.bat deploy-space -cluster total_members=4,0 space
 
 	
 _1. to compile code:_	
@@ -32,7 +32,9 @@ _5. Start trafficLight_
 
     mvn os:run -Dmodule=trafficLight
 	
-	
+_6. (optional) Start collectCars [not jet working]_
+
+    mvn os:run -Dmodule=collectCars
 	
 	
 ###### TODO:

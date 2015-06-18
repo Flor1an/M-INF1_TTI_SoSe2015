@@ -1,23 +1,25 @@
 package haw.common;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.gigaspaces.annotation.pojo.SpaceId;
 
 public class CarPositions {
 	private Integer id;
-	private HashMap<Integer, Integer[]> list;
+	private HashMap<Integer, Integer[]> list = new HashMap<Integer, Integer[]>();
+	private String note = "";
 
 	public CarPositions() {
 
-		list = new HashMap<Integer, Integer[]>();
-	}
-	
-	public CarPositions(Integer id) {
-	this.id=id;
-	list = new HashMap<Integer, Integer[]>();
 	}
 
+	public CarPositions(Integer id) {
+		this.id = id;
+		this.list = new HashMap<Integer, Integer[]>();
+		this.note = "testentry";
+	}
 
 	@SpaceId
 	public Integer getId() {
@@ -39,14 +41,26 @@ public class CarPositions {
 		this.list.put(CarId, position);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
 	@Override
 	public String toString() {
-		return "CarPositions("+id+") [list=" + list + "]";
+
+		String txt = "";
+
+		Iterator it = list.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			txt += "\n{" + pair.getKey() + " = [" + ((Integer[]) pair.getValue())[0] + ";" + ((Integer[]) pair.getValue())[1] + "]}";
+			it.remove(); // avoids a ConcurrentModificationException
+		}
+		return "CarPositions(" + id + ") [list=" + txt + "] " + note;
 	}
 
 	public void setList(HashMap<Integer, Integer[]> list) {

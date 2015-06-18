@@ -1,6 +1,6 @@
 package haw.feeder;
 
-
+import haw.common.CarPositions;
 import haw.common.MapElement;
 
 import org.openspaces.core.GigaSpace;
@@ -86,13 +86,26 @@ public class Feeder implements InitializingBean, DisposableBean {
 
 		public void run() {
 			try {
+				deleteContentInSpace();
 
 				generatingTheWorld();
-				Thread.sleep(2000);
+				Thread.sleep(1000);
+
 				setCarToRandomPosition();
+				Thread.sleep(1000);
+
+				
+				// ////////////////////////////////
+				//TODO: currently its not possible to read this object somewhere from the space
+				CarPositions cp1 = new CarPositions();
+				cp1.setId(1);
+				cp1.setNote("setted in feeder");
+				gigaSpace.write(cp1);
+				log.info("Generated empy Position Map: " + cp1 + "\n\n\n");
+				// ////////////////////////////////
 
 				destroy(); // stop feeder
-				log.info("completed generating the world \n\n\n\n");
+				log.info("FEEDER FINISHED SUCESSFULL AND TERMINATED ITSELF CORRECTLY");
 
 			} catch (SpaceInterruptedException e) {
 				// ignore, we are being shutdown
@@ -106,6 +119,12 @@ public class Feeder implements InitializingBean, DisposableBean {
 				}
 				log.warning("PROBLEMO: " + e.getMessage());
 			}
+		}
+
+		private void deleteContentInSpace() {
+			gigaSpace.takeMultiple(new MapElement());
+			gigaSpace.takeMultiple(new CarPositions());
+			gigaSpace.takeMultiple(new Object());
 		}
 
 		private void generatingTheWorld() {
@@ -125,26 +144,27 @@ public class Feeder implements InitializingBean, DisposableBean {
 					MapElement mapElem;
 					if (y % HorizontalRoadFrequency == 1) {
 						if (x % VerticalRoadFrequency == 2) {
-							// junction //updated: everytime unset (traffic light switch needs to react)
+							// junction //updated: everytime unset (traffic
+							// light switch needs to react)
 							if (new Random().nextInt(2) == 0) {
 								// junction direction south
-								mapElem = new MapElement(id, x, y, true, true, false, false,0,0);
+								mapElem = new MapElement(id, x, y, true, true, false, false, 0, 0);
 							} else {
 								// junction direction east
-								mapElem = new MapElement(id, x, y, true, true, false, false,0,0);
+								mapElem = new MapElement(id, x, y, true, true, false, false, 0, 0);
 							}
 
 						} else {
 							// straight road direction east
-							mapElem = new MapElement(id, x, y, true, false, true, false,0,0);
+							mapElem = new MapElement(id, x, y, true, false, true, false, 0, 0);
 						}
 					} else {
 						if (x % VerticalRoadFrequency == 2) {
 							// straight road direction south
-							mapElem = new MapElement(id, x, y, true, false, false, true,0,0);
+							mapElem = new MapElement(id, x, y, true, false, false, true, 0, 0);
 						} else {
 							// no road (green land)
-							mapElem = new MapElement(id, x, y, false, false, false, false,0,0);
+							mapElem = new MapElement(id, x, y, false, false, false, false, 0, 0);
 						}
 
 					}
@@ -184,8 +204,8 @@ public class Feeder implements InitializingBean, DisposableBean {
 				}
 				log.info("Assigning of Car " + carId + " to [" + currentXPosition + ";" + currentYPosition + "] completed.\n");
 			}
-				log.info("EXIT: setCarToRandomPosition()\n\n\n");
-			
+			log.info("EXIT: setCarToRandomPosition()\n\n\n");
+
 		}
 
 		public long getCounter() {

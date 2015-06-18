@@ -47,7 +47,7 @@
 		<os-events:tx-support tx-manager="transactionManager" />
 		<os-core:template>
 			<bean class="haw.common.CarPositions">
-				 <!--  <property name="id" value="33" />  -->
+
 			</bean>
 		</os-core:template>
 		<os-events:listener>

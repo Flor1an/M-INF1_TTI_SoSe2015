@@ -18,7 +18,7 @@ public class Processor {
 
 	Logger log = Logger.getLogger(this.getClass().getName());
 
-	private long workDuration = 3000;
+	private long workDuration = 2000;
 
 	@GigaSpaceContext
 	private GigaSpace gigaSpace;
@@ -50,7 +50,6 @@ public class Processor {
 		template.hasCar();
 
 		MapElement[] cars = gigaSpace.readMultiple(template);
-		log.warning("READ: "+cars.toString() + "\n");
 
 		for (MapElement me : cars) {
 			if (me != null) {
@@ -61,7 +60,9 @@ public class Processor {
 			}
 		}
 
-		log.info(" Cars are collected! Content is: : " + current.toString() + "\n");
+		current.setNote(current.getNote() + ".");
+
+		log.info(" Cars are collected! Content is: : " + current.toString() + "\n\n\n\n");
 		return current;
 	}
 
